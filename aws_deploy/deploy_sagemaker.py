@@ -34,8 +34,8 @@ def deploy():
     print(f"Account ID: {ACCOUNT_ID}")
     print(f"Deployment Mode: {DEPLOYMENT_MODE}")
     
-    # Initialize SageMaker Session
-    sess = sagemaker.Session()
+    # Initialize S3 client
+    s3_client = boto3.client('s3', region_name=REGION)
     
     # 1. Upload model.tar.gz to S3
     model_tar_path = os.path.join(os.path.dirname(__file__), "model.tar.gz")
@@ -45,22 +45,20 @@ def deploy():
 
     print(f"Uploading {model_tar_path} to s3://{BUCKET_NAME}/{PREFIX}/model.tar.gz ...")
     # Create bucket if not exists
-    s3 = boto3.client('s3', region_name=REGION)
     try:
         if REGION == "us-east-1":
-            s3.create_bucket(Bucket=BUCKET_NAME)
+            s3_client.create_bucket(Bucket=BUCKET_NAME)
         else:
-            s3.create_bucket(Bucket=BUCKET_NAME, CreateBucketConfiguration={'LocationConstraint': REGION})
-    except s3.exceptions.BucketAlreadyOwnedByYou:
+            s3_client.create_bucket(Bucket=BUCKET_NAME, CreateBucketConfiguration={'LocationConstraint': REGION})
+    except s3_client.exceptions.BucketAlreadyOwnedByYou:
         pass
     except Exception as e:
         print(f"Error creating bucket: {e}")
 
-    model_data = sess.upload_data(
-        path=model_tar_path,
-        bucket=BUCKET_NAME,
-        key_prefix=PREFIX
-    )
+    # Upload file
+    key = f"{PREFIX}/model.tar.gz"
+    s3_client.upload_file(model_tar_path, BUCKET_NAME, key)
+    model_data = f"s3://{BUCKET_NAME}/{key}"
     print(f"Model uploaded to: {model_data}")
 
     # 2. Create SageMaker Model

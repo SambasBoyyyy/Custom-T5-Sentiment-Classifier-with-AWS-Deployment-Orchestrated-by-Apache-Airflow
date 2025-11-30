@@ -3,6 +3,7 @@ sagemaker>=2.200.0
 python-dotenv>=1.0.0
 requests>=2.31.0
 transformers>=4.35.0
+--extra-index-url https://download.pytorch.org/whl/cu118
 torch>=2.1.0
 sentencepiece>=0.1.99
 datasets>=2.14.0

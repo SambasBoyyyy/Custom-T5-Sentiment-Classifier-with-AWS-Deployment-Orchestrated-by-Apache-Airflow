@@ -12,6 +12,7 @@ pip-delete-this-directory.txt
 
 # Environment Variables
 .env
+airflow/.env
 
 # Project Specific
 .api_url
@@ -19,8 +20,7 @@ pip-delete-this-directory.txt
 mlruns/
 
 # Model Artifacts & Training Outputs
-t5-sst2-finetuned/
-t5-sentiment-gate/
+t5-classification/
 test_trainer/
 test_run/
 *.tar.gz
@@ -39,3 +39,12 @@ training_stats.json
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Airflow
+airflow/logs/
+airflow/*.pid
+airflow/*.err
+airflow/*.log
+airflow/airflow.cfg
+airflow/webserver_config.py
+airflow/standalone_admin_password.txt
