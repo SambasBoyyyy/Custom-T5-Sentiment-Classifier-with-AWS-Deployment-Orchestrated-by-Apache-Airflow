@@ -114,3 +114,16 @@ def create_s3_bucket() -> str:
             raise
     
     return config.bucket_name
+
+
+def setup_aws():
+    """
+    Setup all AWS resources.
+    
+    Returns:
+        tuple: (bucket_name, role_arn)
+    """
+    role_arn = create_iam_role()
+    bucket_name = create_s3_bucket()
+    return bucket_name, role_arn
+

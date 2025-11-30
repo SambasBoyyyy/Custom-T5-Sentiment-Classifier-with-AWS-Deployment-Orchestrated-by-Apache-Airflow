@@ -86,13 +86,13 @@ def lambda_handler(event, context):
         try:
             response = lambda_client.create_function(
                 FunctionName=config.lambda_name,
-                Runtime='python3.12',
+                Runtime='python3.10',
                 Role=role_arn,
                 Handler='lambda_function.lambda_handler',
                 Code={'ZipFile': zip_content},
-                Timeout=120,  # 2 minutes for GPU inference (first call can take 30s)
+                Timeout=120,  # 2 minutes for GPU inference
                 MemorySize=512,
-                Description='T5 summarization API handler'
+                Description='T5 Sentiment Classification API handler'
             )
             print(f"✓ Created Lambda function: {config.lambda_name}")
         except lambda_client.exceptions.ResourceConflictException:
@@ -100,6 +100,9 @@ def lambda_handler(event, context):
                 FunctionName=config.lambda_name,
                 ZipFile=zip_content
             )
+            # Wait a moment for update
+            import time
+            time.sleep(2)
             response = lambda_client.get_function(FunctionName=config.lambda_name)
             print(f"✓ Updated Lambda function: {config.lambda_name}")
         
@@ -119,7 +122,7 @@ def lambda_handler(event, context):
 
 def create_api_gateway(lambda_arn: str) -> str:
     """
-    Create API Gateway with /summarize endpoint.
+    Create API Gateway with /classify endpoint.
     
     Args:
         lambda_arn: Lambda function ARN
@@ -141,7 +144,7 @@ def create_api_gateway(lambda_arn: str) -> str:
     # Create new API
     api = apigateway.create_rest_api(
         name=config.api_name,
-        description='T5 Summarization API',
+        description='T5 Sentiment Classification API',
         endpointConfiguration={'types': ['REGIONAL']}
     )
     api_id = api['id']
@@ -151,11 +154,11 @@ def create_api_gateway(lambda_arn: str) -> str:
     resources = apigateway.get_resources(restApiId=api_id)
     root_id = resources['items'][0]['id']
     
-    # Create /summarize resource
+    # Create /classify resource
     resource = apigateway.create_resource(
         restApiId=api_id,
         parentId=root_id,
-        pathPart='summarize'
+        pathPart='classify'
     )
     resource_id = resource['id']
     
@@ -186,7 +189,16 @@ def create_api_gateway(lambda_arn: str) -> str:
     )
     
     # Build URL
-    api_url = f"https://{api_id}.execute-api.{config.region}.amazonaws.com/prod/summarize"
+    api_url = f"https://{api_id}.execute-api.{config.region}.amazonaws.com/prod/classify"
     print(f"✓ API deployed at: {api_url}")
     
     return api_url
+
+
+def create_api(endpoint_name: str, role_arn: str) -> str:
+    """
+    Create public API for the endpoint.
+    Wrapper function called by deploy.py.
+    """
+    lambda_arn = create_lambda(role_arn, endpoint_name)
+    return create_api_gateway(lambda_arn)

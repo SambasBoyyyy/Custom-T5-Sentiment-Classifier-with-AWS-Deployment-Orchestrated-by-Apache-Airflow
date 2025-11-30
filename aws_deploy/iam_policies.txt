@@ -1,0 +1,28 @@
+Required IAM Policies for this deployment:
+
+1. SageMaker Execution Role (used by SageMaker service):
+   - AmazonSageMakerFullAccess
+   - AmazonS3FullAccess (or specific bucket access)
+   - CloudWatchLogsFullAccess (for logging)
+
+2. Lambda Execution Role (used by the Lambda function):
+   - AWSLambdaBasicExecutionRole (for CloudWatch logs)
+   - AmazonSageMakerFullAccess (to invoke the endpoint)
+     OR specifically:
+     {
+         "Version": "2012-10-17",
+         "Statement": [
+             {
+                 "Effect": "Allow",
+                 "Action": "sagemaker:InvokeEndpoint",
+                 "Resource": "arn:aws:sagemaker:*:*:endpoint/t5-sentiment-serverless-endpoint"
+             }
+         ]
+     }
+
+3. User/Deployer Role (the user running the scripts):
+   - AmazonSageMakerFullAccess
+   - AWSLambda_FullAccess
+   - AmazonAPIGatewayAdministrator
+   - IAMFullAccess (to create roles)
+   - AmazonS3FullAccess

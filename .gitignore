@@ -20,7 +20,9 @@ mlruns/
 
 # Model Artifacts & Training Outputs
 t5-sst2-finetuned/
+t5-sentiment-gate/
 test_trainer/
+test_run/
 *.tar.gz
 model/
 
@@ -28,6 +30,7 @@ model/
 benchmark_results.json
 test_benchmark.json
 test_results_testsplit.json
+training_stats.json
 
 # IDE
 .vscode/
