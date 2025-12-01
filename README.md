@@ -46,7 +46,24 @@ The model utilized RL training loop where the Gate is treated as a policy. It us
 
 ---
 
-## 🔄 MLOps Pipeline
+## � Performance & Data
+
+### Dataset: SST-2 (GLUE Benchmark)
+We use the **SST-2 (Stanford Sentiment Treebank)** dataset from the GLUE benchmark.
+*   **Train Set**: ~67,349 examples
+*   **Validation Set**: 872 examples
+
+### Accuracy Comparison
+| Model | Accuracy | Source |
+| :--- | :--- | :--- |
+| **Original T5-Base** | **91.80%** | [Raffel et al., 2020 (JMLR)](https://jmlr.org/papers/volume21/20-074/20-074.pdf) |
+| **T5-Small + Sentiment Gate** | **91.17%** | Our Implementation |
+
+*Note: While our gated approach sees a slight drop in accuracy, it offers significantly faster inference (encoder-only) and interpretability (gate scores).*
+
+---
+
+## �🔄 MLOps Pipeline
 
 The entire lifecycle of the model is automated using **Apache Airflow**, ensuring reproducibility and continuous delivery.
 
