@@ -15,8 +15,34 @@ The core of this project is a custom `T5ForSentimentClassification` model that m
     $$ h_{pooled} = \frac{\sum (h_i \times g_i)}{\sum g_i} $$
 4.  **Classification Head**: A final dense layer maps the pooled representation to 2 classes (Negative/Positive).
 
+### 🔍 Sentiment Gate Example
+
+To understand how the gate works, consider the sentence: **"The visual effects were stunning, but the plot was boring."**
+
+The **Sentiment Gate** analyzes each token and assigns a score based on its contribution to the overall sentiment.
+
+| Token | Gate Score (0-1) | Interpretation |
+| :--- | :--- | :--- |
+| `The` | 0.05 | Irrelevant (Stop word) |
+| `visual` | 0.20 | Context |
+| `effects` | 0.20 | Context |
+| `were` | 0.05 | Irrelevant |
+| `stunning` | **0.95** | **Strong Positive Signal** |
+| `,` | 0.01 | Irrelevant |
+| `but` | 0.40 | Contrast Marker |
+| `the` | 0.05 | Irrelevant |
+| `plot` | 0.30 | Context |
+| `was` | 0.05 | Irrelevant |
+| `boring` | **0.98** | **Strong Negative Signal** |
+
+**How it works:**
+*   The model computes a weighted average of the token embeddings.
+*   The embeddings for **"stunning"** and **"boring"** will dominate the final representation because of their high gate scores.
+*   Neutral words like "The" or "was" are effectively filtered out.
+*   The final classifier sees a representation that is a mix of "stunning" and "boring" (and "but"), allowing it to make a nuanced decision.
+
 ### Reinforcement Learning (RL) Optimization
-The model supports an optional RL training loop where the Gate is treated as a policy. It uses the **REINFORCE** algorithm to optimize the gate to maximize classification accuracy, encouraging it to select the most predictive tokens.
+The model utilized RL training loop where the Gate is treated as a policy. It uses the **REINFORCE** algorithm to optimize the gate to maximize classification accuracy, encouraging it to select the most predictive tokens.
 
 ---
 
@@ -109,14 +135,14 @@ Access the Airflow UI at [http://localhost:8080](http://localhost:8080) (User/Pa
 **Request Body**:
 ```json
 {
-  "inputs": "I absolutely loved this movie! It was fantastic."
+  "inputs": "The visual effects were stunning, but the plot was boring."
 }
 ```
 
 **Response**:
 ```json
 {
-  "label": "POSITIVE",
+  "label": "NEGATIVE",
   "score": 0.98
 }
 ```
